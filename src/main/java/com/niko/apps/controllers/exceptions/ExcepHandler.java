@@ -15,11 +15,15 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.niko.apps.exceptions.CustomException;
+import com.niko.apps.exceptions.DuplicateException;
+import com.niko.apps.exceptions.HabitNotFoundException;
 import com.niko.apps.exceptions.UserNotFoundException;
 
 @ControllerAdvice
 public class ExcepHandler extends ResponseEntityExceptionHandler {
 	
+	
+	// All generic exceptions
 	@ExceptionHandler(Exception.class)
 	public final ResponseEntity<CustomException> handleAllExceptions(Exception ex, WebRequest req) {
 		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
@@ -27,16 +31,30 @@ public class ExcepHandler extends ResponseEntityExceptionHandler {
 	}
 	
 	
+	// Unauthorized
 	@ExceptionHandler(UserNotFoundException.class)
 	public final ResponseEntity<CustomException> handleUserNotFoundException(Exception ex, WebRequest req) {
+		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
+		return new ResponseEntity<CustomException>(customError, HttpStatus.UNAUTHORIZED);
+	}
+	
+	// Habit - Not Found
+	@ExceptionHandler(HabitNotFoundException.class) 
+	public final ResponseEntity<CustomException> handleHabitNotFoundException(Exception ex, WebRequest req) {
 		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
 		return new ResponseEntity<CustomException>(customError, HttpStatus.NOT_FOUND);
 	}
 	
 	
+	@ExceptionHandler(DuplicateException.class)
+	public final ResponseEntity<CustomException> handleDuplicateContentException(Exception ex, WebRequest req) {
+		CustomException customError =  new CustomException(LocalDateTime.now(), ex.getMessage());
+		return new ResponseEntity<CustomException>(customError, HttpStatus.CONFLICT);
+	}
+	
+	// Bad Request
 	
 	// Override Spring's internal Validation handler for bad request
-	
 	protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
 			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
