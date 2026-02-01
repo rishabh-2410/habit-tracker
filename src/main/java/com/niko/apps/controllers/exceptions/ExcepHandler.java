@@ -5,6 +5,7 @@ import java.net.http.HttpHeaders;
 import java.time.LocalDateTime;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -46,10 +47,17 @@ public class ExcepHandler extends ResponseEntityExceptionHandler {
 	}
 	
 	
-	// Conflict 409
+	// Habit Conflict 409
 	@ExceptionHandler(DuplicateException.class)
 	public final ResponseEntity<CustomException> handleDuplicateContentException(Exception ex, WebRequest req) {
 		CustomException customError =  new CustomException(LocalDateTime.now(), ex.getMessage());
+		return new ResponseEntity<CustomException>(customError, HttpStatus.CONFLICT);
+	}
+	
+	// Email Conflict 409
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public final ResponseEntity<CustomException> handleDuplicateEmail(Exception ex, WebRequest req) {
+		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
 		return new ResponseEntity<CustomException>(customError, HttpStatus.CONFLICT);
 	}
 	 
