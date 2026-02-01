@@ -5,6 +5,7 @@ import java.net.http.HttpHeaders;
 import java.time.LocalDateTime;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ import com.niko.apps.exceptions.UserNotFoundException;
 public class ExcepHandler extends ResponseEntityExceptionHandler {
 	
 	
-	// All generic exceptions
+	// All generic exceptions 500
 	@ExceptionHandler(Exception.class)
 	public final ResponseEntity<CustomException> handleAllExceptions(Exception ex, WebRequest req) {
 		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
@@ -31,14 +32,14 @@ public class ExcepHandler extends ResponseEntityExceptionHandler {
 	}
 	
 	
-	// Unauthorized
+	// Unauthorized 401
 	@ExceptionHandler(UserNotFoundException.class)
 	public final ResponseEntity<CustomException> handleUserNotFoundException(Exception ex, WebRequest req) {
 		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
 		return new ResponseEntity<CustomException>(customError, HttpStatus.UNAUTHORIZED);
 	}
 	
-	// Habit - Not Found
+	// Habit - Not Found 404
 	@ExceptionHandler(HabitNotFoundException.class) 
 	public final ResponseEntity<CustomException> handleHabitNotFoundException(Exception ex, WebRequest req) {
 		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
@@ -46,13 +47,21 @@ public class ExcepHandler extends ResponseEntityExceptionHandler {
 	}
 	
 	
+	// Habit Conflict 409
 	@ExceptionHandler(DuplicateException.class)
 	public final ResponseEntity<CustomException> handleDuplicateContentException(Exception ex, WebRequest req) {
 		CustomException customError =  new CustomException(LocalDateTime.now(), ex.getMessage());
 		return new ResponseEntity<CustomException>(customError, HttpStatus.CONFLICT);
 	}
 	
-	// Bad Request
+	// Email Conflict 409
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public final ResponseEntity<CustomException> handleDuplicateEmail(Exception ex, WebRequest req) {
+		CustomException customError = new CustomException(LocalDateTime.now(), ex.getMessage());
+		return new ResponseEntity<CustomException>(customError, HttpStatus.CONFLICT);
+	}
+	 
+	// Bad Request 400
 	
 	// Override Spring's internal Validation handler for bad request
 	protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
