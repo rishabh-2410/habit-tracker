@@ -1,4 +1,4 @@
-package com.niko.apps.controllers.tracking;
+package com.niko.apps.entity;
 
 public enum HabitStatus {
 	DONE,

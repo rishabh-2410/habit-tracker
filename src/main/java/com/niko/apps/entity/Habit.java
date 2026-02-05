@@ -1,10 +1,9 @@
-package com.niko.apps.controllers.habits;
+package com.niko.apps.entity;
 
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.niko.apps.controllers.auth.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,7 +32,6 @@ public class Habit {
 	
 	@JsonProperty("desc")
 	private String description;
-	
 	
 	@JsonProperty("created_at")
 	private LocalDateTime created_at;
