@@ -1,10 +1,9 @@
-package com.niko.apps.controllers.tracking;
+package com.niko.apps.entity;
 
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.niko.apps.controllers.habits.Habit;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

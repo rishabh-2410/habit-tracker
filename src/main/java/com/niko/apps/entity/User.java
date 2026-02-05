@@ -1,4 +1,4 @@
-package com.niko.apps.controllers.auth;
+package com.niko.apps.entity;
 
 import java.time.LocalDateTime;
 
@@ -10,16 +10,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Entity(name = "user")
 @Table(name = "users")
+@Data
 public class User {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@JsonProperty("email")
@@ -28,28 +31,46 @@ public class User {
 	@Column(nullable = false, unique = true)	 // Values in DB for this column must be unique and null value is not allowed.
 	private String email;
 	
-	@JsonIgnore
 	private String password;
 	
 	@JsonProperty("created_at")
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime created_at;
 	
+	private String roles;
 	
 	
+	public String getRoles() {
+		return roles;
+	}
+
+
+	public void setRoles(String roles) {
+		this.roles = roles;
+	}
+
+
+
 	public User() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
 
-
-	public User(Long id, String email, String password, LocalDateTime created_at) {
+	public User(Long id,
+				@Email(message = "Invalid email format") 
+				@NotBlank(message = "Email cannot be empty") 
+				String email,
+				String password, 
+				LocalDateTime created_at, 
+				String roles
+	) {
 		super();
 		this.id = id;
 		this.email = email;
 		this.password = password;
 		this.created_at = created_at;
+		this.roles = roles;
 	}
 
 
@@ -104,9 +125,13 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", email=" + email + ", password=" + password + ", created_at=" + created_at + "]";
+		return "User [id=" + id + ", email=" + email + ", password=" + password + ", created_at=" + created_at
+				+ ", roles=" + roles + "]";
 	}
 	
-	
+	@PrePersist
+	public void prePersist() {
+	    this.created_at = LocalDateTime.now();
+	}
 	
 }
