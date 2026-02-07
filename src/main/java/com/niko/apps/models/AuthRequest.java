@@ -1,4 +1,4 @@
-package com.niko.apps.entity;
+package com.niko.apps.models;
 
 
 public class AuthRequest {

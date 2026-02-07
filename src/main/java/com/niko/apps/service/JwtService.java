@@ -78,17 +78,21 @@ public class JwtService {
 	}
 	
 	// Check if token is expired
-	@SuppressWarnings("unused")
 	private Boolean isTokenExpired(String token) {
 	        return extractExpiration(token).before(new Date());
 	    }
 	
 	
-	// TODO Add more token validations
+
 	// Check if token is valid
 	public Boolean validateToken(String token, UserDetails userDetails) {
+		
+		// Extract email from token
 		final String username = extractEmail(token);
-		return (username.equals(userDetails.getUsername()));
+		
+		// Check extracted email from token with the user email in DB
+		// Also check if the token is expired.
+		return (username.equals(userDetails.getUsername())) && isTokenExpired(token);
 	}
 	
  }

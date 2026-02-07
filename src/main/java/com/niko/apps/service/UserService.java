@@ -11,7 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.niko.apps.entity.User;
+import com.niko.apps.exceptions.DuplicateException;
+import com.niko.apps.models.RegisterUserRequest;
 import com.niko.apps.repository.UserRepository;
+import static com.niko.apps.constants.AppConstants.*;
+
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
 
 
 @Component
@@ -34,7 +40,7 @@ public class UserService implements UserDetailsService{
     	
     	// Check whether user is empty or not
     	if ( userFromDB.isEmpty()) {
-    		throw new UsernameNotFoundException("User not found with email: " + email);
+    		throw new UsernameNotFoundException(USER_NOT_FOUND_MSG + email);
     	}
     	
     	
@@ -48,17 +54,30 @@ public class UserService implements UserDetailsService{
     }
     
     
-    // TODO Add proper validations for incoming requests 
     
-    // Add any additional methods for registering or managing users
-    public String addUser(User user) {
+    // Register user
+    public Boolean register(RegisterUserRequest req) {
+    	// Check if user already exists
+    	repository.findByEmail(req.getEmail())
+    		     .ifPresent(u -> {
+            throw new DuplicateException(DUPLICATE_USER_MSG);
+        });
+
+    	// Create new user entity
+    	User user = new User();
+    	
+    	// Set email from request
+    	user.setEmail(req.getEmail());
+    	
+    	
+    	// Set role for the user
+    	user.setRole(ROLE_USER);
+    	
         // Encrypt password before saving
-        user.setPassword(encoder.encode(user.getPassword())); 
+        user.setPassword(encoder.encode(req.getPassword())); 
         repository.save(user);
-        return "User added successfully!";
+        
+        return true;
     }
     
-    
-    // TODO Add other authentication methods
-  
 }

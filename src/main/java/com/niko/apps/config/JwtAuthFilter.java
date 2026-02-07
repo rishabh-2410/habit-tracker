@@ -48,14 +48,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		// If user exists and token is valid, convert token to type Authentication so Spring Security can understand it.
 		// This sets the Authentication for this request flow only. Any layers in the flow for this particular request
 		// can access token details without having to parse the token again and again.
+		
+		// Check if user is not null and Spring security has not authenticated this request yet.
 		if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+			
+			
+			// Fetch user from DB 
 			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+			
+			// Validate the token and its expiration
 			if (jwtService.validateToken(token, userDetails)) {
+				
+				// If valid token found, create a new sprint security object.
+				// This object means the user is not authenticated and has these roles
 				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
 						userDetails,
 						null,
 						userDetails.getAuthorities());
+				
+				// Attach request details (metadata like IP, session etc) to the token.
+				// Not mandatory, but good practice
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				
+				// Persist user authentication for this request inside Spring security
+				// After this, any controller in the flow can get the user details by doing
+				// `SecurityContextHolder.getContext().getAuthentication()`
 				SecurityContextHolder.getContext().setAuthentication(authToken);
 			}
 		}

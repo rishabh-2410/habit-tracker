@@ -1,5 +1,7 @@
 package com.niko.apps.controllers.auth;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -9,8 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.niko.apps.entity.AuthRequest;
-import com.niko.apps.entity.User;
+
+import com.niko.apps.models.AuthRequest;
+import com.niko.apps.models.RegisterUserRequest;
 import com.niko.apps.service.JwtService;
 import com.niko.apps.service.UserService;
 
@@ -40,14 +43,15 @@ public class AuthController {
 		return "Welcome, this endpoint is not secure";
 	}
 	
-	@PostMapping("/addNewUser")
-	public String addUser(@RequestBody User user) {
-		return authService.addUser(user);
+	@PostMapping("/api/v1/register")
+	public ResponseEntity<Void> registerUser(@Valid @RequestBody RegisterUserRequest req) {
+		authService.register(req);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	
 	@PostMapping("/generateToken")
-	public String authenticateAndGetToken(@Valid @RequestBody AuthRequest authRequest) {
+	public String loginUser(@Valid @RequestBody AuthRequest authRequest) {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
 				);
