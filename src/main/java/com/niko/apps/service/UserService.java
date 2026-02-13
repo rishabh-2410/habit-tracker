@@ -11,19 +11,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.niko.apps.entity.User;
+import com.niko.apps.exceptions.DuplicateException;
+import com.niko.apps.models.user.RegisterRequest;
 import com.niko.apps.repository.UserRepository;
-
+import static com.niko.apps.constants.AppConstants.*;
 
 @Component
 public class UserService implements UserDetailsService{
 	
 	private final UserRepository repository;
     private final PasswordEncoder encoder;
+    private final JwtService jwtService;
+  
     
     @Autowired
-    public UserService(UserRepository repository, PasswordEncoder encoder) {
+    public UserService(UserRepository repository, PasswordEncoder encoder,JwtService jwtService) {
         this.repository = repository;
         this.encoder = encoder;
+        this.jwtService = jwtService;
+        
     }
     
     // Method to load user details by username (email)
@@ -34,7 +40,7 @@ public class UserService implements UserDetailsService{
     	
     	// Check whether user is empty or not
     	if ( userFromDB.isEmpty()) {
-    		throw new UsernameNotFoundException("User not found with email: " + email);
+    		throw new UsernameNotFoundException(USER_NOT_FOUND_MSG + email);
     	}
     	
     	
@@ -43,22 +49,40 @@ public class UserService implements UserDetailsService{
     	
     	// Return UserInfoDetails type of object passing the entity typed object
     	// Internally, UserInfoDetails's constructor will extract email, password and roles into its object
-    	// And since UserInfoDetails implements UserDetails, this is a valid return mactching the return type of the function.
+    	// And since UserInfoDetails implements UserDetails, this is a valid return matching the return type of the function.
     	return new UserInfo(localUser);
     }
     
     
-    // TODO Add proper validations for incoming requests 
     
-    // Add any additional methods for registering or managing users
-    public String addUser(User user) {
+    // Register user
+    public void registerUser(RegisterRequest req) {
+    	// Check if user already exists
+    	repository.findByEmail(req.getEmail())
+    		     .ifPresent(u -> {
+            throw new DuplicateException(DUPLICATE_USER_MSG);
+        });
+
+    	// Create new user entity
+    	User user = new User();
+    	
+    	// Set email from request
+    	user.setEmail(req.getEmail());
+    	
+    	
+    	// Set role for the user
+    	user.setRole(ROLE_USER);
+    	
         // Encrypt password before saving
-        user.setPassword(encoder.encode(user.getPassword())); 
+        user.setPassword(encoder.encode(req.getPassword())); 
         repository.save(user);
-        return "User added successfully!";
+        
     }
     
     
-    // TODO Add other authentication methods
-  
+    // Register user
+    public String loginUser(String email) {
+        return jwtService.generateToken(email);
+    }
+    
 }
