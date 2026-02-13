@@ -10,13 +10,11 @@ import com.niko.apps.exceptions.HabitNotFoundException;
 import com.niko.apps.repository.HabitLogRepository;
 import com.niko.apps.repository.HabitRepository;
 import com.niko.apps.repository.UserRepository;
-import org.springframework.cglib.core.Local;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+
 
 @Component
 public class HabitLogService {
