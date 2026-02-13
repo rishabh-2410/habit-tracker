@@ -12,24 +12,24 @@ import org.springframework.stereotype.Component;
 
 import com.niko.apps.entity.User;
 import com.niko.apps.exceptions.DuplicateException;
-import com.niko.apps.models.RegisterUserRequest;
+import com.niko.apps.models.user.RegisterRequest;
 import com.niko.apps.repository.UserRepository;
 import static com.niko.apps.constants.AppConstants.*;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import jakarta.validation.Valid;
-
 
 @Component
 public class UserService implements UserDetailsService{
 	
 	private final UserRepository repository;
     private final PasswordEncoder encoder;
+    private final JwtService jwtService;
+  
     
     @Autowired
-    public UserService(UserRepository repository, PasswordEncoder encoder) {
+    public UserService(UserRepository repository, PasswordEncoder encoder,JwtService jwtService) {
         this.repository = repository;
         this.encoder = encoder;
+        this.jwtService = jwtService;
+        
     }
     
     // Method to load user details by username (email)
@@ -49,14 +49,14 @@ public class UserService implements UserDetailsService{
     	
     	// Return UserInfoDetails type of object passing the entity typed object
     	// Internally, UserInfoDetails's constructor will extract email, password and roles into its object
-    	// And since UserInfoDetails implements UserDetails, this is a valid return mactching the return type of the function.
+    	// And since UserInfoDetails implements UserDetails, this is a valid return matching the return type of the function.
     	return new UserInfo(localUser);
     }
     
     
     
     // Register user
-    public Boolean register(RegisterUserRequest req) {
+    public void registerUser(RegisterRequest req) {
     	// Check if user already exists
     	repository.findByEmail(req.getEmail())
     		     .ifPresent(u -> {
@@ -77,7 +77,12 @@ public class UserService implements UserDetailsService{
         user.setPassword(encoder.encode(req.getPassword())); 
         repository.save(user);
         
-        return true;
+    }
+    
+    
+    // Register user
+    public String loginUser(String email) {
+        return jwtService.generateToken(email);
     }
     
 }

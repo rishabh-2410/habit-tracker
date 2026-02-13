@@ -89,10 +89,13 @@ public class JwtService {
 		
 		// Extract email from token
 		final String username = extractEmail(token);
+
+
+		System.out.println("Username from token: " + username);
 		
 		// Check extracted email from token with the user email in DB
 		// Also check if the token is expired.
-		return (username.equals(userDetails.getUsername())) && isTokenExpired(token);
+		return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
 	}
 	
  }

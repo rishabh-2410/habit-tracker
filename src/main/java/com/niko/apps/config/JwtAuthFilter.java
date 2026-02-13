@@ -2,6 +2,7 @@ package com.niko.apps.config;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +33,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	
 	
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+		System.out.println("JWT filter executed");
+
 		String authHeader = request.getHeader("Authorization");
 		String token = null; 
 		String email = null;
@@ -40,8 +43,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		
 		// If auth header is present in request and starts with `Bearer `, extract token and the user email from the token
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
 			token  = authHeader.substring(7);
+			System.out.println("token: " + token);
 			email = jwtService.extractEmail(token);
+			System.out.println("email from token: " + email);
 		}
 		
 		
@@ -55,6 +61,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			
 			// Fetch user from DB 
 			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+			System.out.println("user details from DB: " + userDetails);
+
+			Boolean isValidToken  = jwtService.validateToken(token, userDetails);
+			System.out.println("Token validation: " + isValidToken);
 			
 			// Validate the token and its expiration
 			if (jwtService.validateToken(token, userDetails)) {
@@ -66,7 +77,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 						null,
 						userDetails.getAuthorities());
 				
-				// Attach request details (metadata like IP, session etc) to the token.
+				// Attach request details (metadata like IP, session etc.) to the token.
 				// Not mandatory, but good practice
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				
