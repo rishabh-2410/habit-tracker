@@ -2,7 +2,7 @@ package com.niko.apps.entity;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -14,39 +14,39 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+
 
 @Entity(name = "user")
 @Table(name = "users")
-@Data
 public class User {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@JsonProperty("email")
-	@Email(message = "Invalid email format")     // Check email format. Rejects inavlid strings like `abc`, `@gmail`, `abc@` etc.
-	@NotBlank(message = "Email cannot be empty") // Check if email is empty in incoming request.
+	
 	@Column(nullable = false, unique = true)	 // Values in DB for this column must be unique and null value is not allowed.
 	private String email;
 	
+	@Column(nullable = false) // Values in DB for this column cannot be null
 	private String password;
 	
 	@JsonProperty("created_at")
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime created_at;
 	
-	private String roles;
+	
+	@Column(nullable = false, updatable = false)
+	private String role;
 	
 	
-	public String getRoles() {
-		return roles;
+	public String getRole() {
+		return role;
 	}
 
 
-	public void setRoles(String roles) {
-		this.roles = roles;
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 
@@ -63,14 +63,14 @@ public class User {
 				String email,
 				String password, 
 				LocalDateTime created_at, 
-				String roles
+				String role
 	) {
 		super();
 		this.id = id;
 		this.email = email;
 		this.password = password;
 		this.created_at = created_at;
-		this.roles = roles;
+		this.role = role;
 	}
 
 
@@ -126,7 +126,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", email=" + email + ", password=" + password + ", created_at=" + created_at
-				+ ", roles=" + roles + "]";
+				+ ", role=" + role + "]";
 	}
 	
 	@PrePersist

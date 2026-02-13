@@ -1,11 +1,14 @@
 package com.niko.apps.controllers.exceptions;
 
 
-import java.net.http.HttpHeaders;
-import java.time.LocalDateTime;
 
-import org.jspecify.annotations.Nullable;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+
 import org.springframework.dao.DataIntegrityViolationException;
+
+import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,8 @@ import com.niko.apps.exceptions.CustomException;
 import com.niko.apps.exceptions.DuplicateException;
 import com.niko.apps.exceptions.HabitNotFoundException;
 import com.niko.apps.exceptions.UserNotFoundException;
+
+import jakarta.annotation.Nullable;
 
 @ControllerAdvice
 public class ExcepHandler extends ResponseEntityExceptionHandler {
@@ -63,13 +68,19 @@ public class ExcepHandler extends ResponseEntityExceptionHandler {
 	 
 	// Bad Request 400
 	
-	// Override Spring's internal Validation handler for bad request
+//	// Override Spring's internal Validation handler for bad request
+	@Override
 	protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
 			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-
-		CustomException invalidArgException = new CustomException(LocalDateTime.now(), "Total Errors " + ex.getErrorCount() + "First error: " + ex.getFieldError().getDefaultMessage());
+		 
+		 String errorMessage = ex.getBindingResult()
+		            .getFieldErrors()
+		            .stream()
+		            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+		            .collect(Collectors.joining(", "));
+		
+		CustomException invalidArgException = new CustomException(LocalDateTime.now(), errorMessage);
 		return new ResponseEntity<Object>(invalidArgException, HttpStatus.BAD_REQUEST);
 	}
-	
 	
 }
