@@ -21,11 +21,10 @@ public interface HabitLogRepository extends JpaRepository<HabitLog, Long> {
            WHERE h.habit.id = :habitId
            ORDER BY h.logDate DESC
            """)
-    List<LocalDateTime> findHabitDatesByHabitId(@Param("habitId") Long id);
-
-    HabitLog findHabitLogsByHabit_Id(Long habitId);
-
-    HabitLog findHabitLogsByHabit_IdAndLogDate(Long habitId, LocalDate logDate);
+    List<LocalDate> findHabitDatesByHabitId(@Param("habitId") Long id);
 
     HabitLog findHabitLogByHabitAndLogDate(Habit habit, LocalDate logDate);
+
+
+    List<HabitLog> findHabitLogsByHabit_Id(Long habitId);
 }

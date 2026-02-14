@@ -14,4 +14,6 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
     Habit findHabitById(Long id);
 
     Habit findHabitByUser_IdAndId(Long userId, Long id);
+
+    Habit findHabitByUser(User user);
 }
