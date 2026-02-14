@@ -6,8 +6,10 @@ import com.niko.apps.models.habits.HabitsResponse;
 import com.niko.apps.repository.HabitLogRepository;
 import com.niko.apps.repository.HabitRepository;
 import com.niko.apps.repository.UserRepository;
+import com.niko.apps.utils.Utils;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +20,13 @@ public class HabitService {
     private final HabitRepository habitRepository;
     private final HabitLogRepository habitLogRepository;
     private final UserRepository userRepository;
+    private final Utils utils;
 
-    public HabitService(HabitRepository habitRepository, HabitLogRepository habitLogRepository, UserRepository userRepository) {
+    public HabitService(HabitRepository habitRepository, HabitLogRepository habitLogRepository, UserRepository userRepository, Utils utils) {
         this.habitRepository = habitRepository;
         this.habitLogRepository = habitLogRepository;
         this.userRepository = userRepository;
+        this.utils = utils;
     }
 
 
@@ -43,6 +47,7 @@ public class HabitService {
         return habits.stream().map(habit -> {
                 int streak = calculateCurrentStreak(habit.getId());
                 return new HabitsResponse(
+                        habit.getId(),
                         habit.getName(),
                         habit.getDescription(),
                         streak
@@ -52,26 +57,9 @@ public class HabitService {
 
     public int calculateCurrentStreak(Long habitId) {
         // Get all completed dates from DB (habit_log)
-        List<LocalDateTime> completedDates = habitLogRepository.findHabitDatesByHabitId(habitId);
+        List<LocalDate> completedDates = habitLogRepository.findHabitDatesByHabitId(habitId);
 
-        int streak = 0;
-        LocalDateTime today = LocalDateTime.now();
-
-        // For every date in completedDates (sorted in descending order),
-        // check if the date matches today minus the current streak count
-        // e.g. date = today - streak
-        // If it does, increment streak.
-        // If we find a gap (a missing day), stop counting.
-        for (LocalDateTime date : completedDates) {
-            if (date.equals(today.minusDays(streak))) {
-                streak++;
-            } else {
-                break;
-            }
-        }
-
-        // return the current active streak
-        return streak;
+        return utils.calculateCurrentStreak(completedDates);
     }
 
 

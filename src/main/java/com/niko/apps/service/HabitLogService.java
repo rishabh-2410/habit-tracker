@@ -7,13 +7,18 @@ import com.niko.apps.entity.HabitStatus;
 import com.niko.apps.entity.User;
 import com.niko.apps.exceptions.DuplicateException;
 import com.niko.apps.exceptions.HabitNotFoundException;
+import com.niko.apps.models.habits.HabitStats;
 import com.niko.apps.repository.HabitLogRepository;
 import com.niko.apps.repository.HabitRepository;
 import com.niko.apps.repository.UserRepository;
 
+import com.niko.apps.utils.Utils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 
 @Component
@@ -22,11 +27,14 @@ public class HabitLogService {
     private final HabitRepository habitRepository;
     private final HabitLogRepository habitLogRepository;
     private final UserRepository userRepository;
+    private final Utils utils;
 
-    public HabitLogService(HabitRepository habitRepository, HabitLogRepository habitLogRepository, UserRepository userRepository) {
+
+    public HabitLogService(HabitRepository habitRepository, HabitLogRepository habitLogRepository, UserRepository userRepository, Utils utils) {
         this.habitRepository = habitRepository;
         this.habitLogRepository = habitLogRepository;
         this.userRepository = userRepository;
+        this.utils = utils;
     }
 
 
@@ -59,4 +67,39 @@ public class HabitLogService {
         }
 
     }
+
+
+    public List<LocalDate> getHabitHistory(Long id, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        Habit habit = habitRepository.findHabitByUser_IdAndId(user.getId(), id);
+
+        if (habit == null) {
+            throw new HabitNotFoundException("No habit found");
+        }
+
+        return habitLogRepository.findHabitDatesByHabitId(habit.getId());
+    }
+
+
+
+    public HabitStats getHabitStats(Long id, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        Habit habit = habitRepository.findHabitByUser_IdAndId(user.getId(), id);
+
+        if (habit == null) {
+            throw new HabitNotFoundException("No habit found");
+        }
+
+        List<HabitLog> logs =  habitLogRepository.findHabitLogsByHabit_Id(habit.getId());
+        List<LocalDate> completedDates = habitLogRepository.findHabitDatesByHabitId(habit.getId());
+
+        return utils.calculateStats(logs, completedDates, habit.getCreated_at());
+    }
+
+
+
+
+
 }
