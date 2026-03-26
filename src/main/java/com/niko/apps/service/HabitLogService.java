@@ -38,7 +38,7 @@ public class HabitLogService {
     }
 
 
-    public void markHabit(HabitStatus status, Long id, String email) {
+    public void markHabit(Long id, String email) {
         User user = userRepository.findByEmail(email).orElseThrow();
 
         Habit habit = habitRepository.findHabitByUser_IdAndId(user.getId(), id);
@@ -57,11 +57,11 @@ public class HabitLogService {
             if (log.getStatus() == HabitStatus.DONE && log.getLogDate().equals(today)) {
                 throw new DuplicateException("Habit already marked for today");
             }
-            log.setStatus(status);
+            log.setStatus(HabitStatus.DONE);
         } else {
             HabitLog newLog = new HabitLog();
             newLog.setLogDate(LocalDate.now());
-            newLog.setStatus(status);
+            newLog.setStatus(HabitStatus.DONE);
             newLog.setHabit(habit);
             habitLogRepository.save(newLog);
         }

@@ -24,8 +24,8 @@ public class HabitLogController {
     }
 
     @PostMapping("/{id}/mark-done")
-    public ResponseEntity<Object> markHabit(@Valid @RequestBody MarkHabitReq req, @PathVariable Long id, Authentication authentication) {
-    habitLogService.markHabit(req.status(), id, authentication.getName());
+    public ResponseEntity<Object> markHabit(@PathVariable Long id, Authentication authentication) {
+    habitLogService.markHabit(id, authentication.getName());
     return ResponseEntity.ok().build();
     }
 

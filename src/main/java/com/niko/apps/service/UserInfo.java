@@ -3,25 +3,26 @@ package com.niko.apps.service;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.niko.apps.entity.User;
 
-@SuppressWarnings("serial")
+@NullMarked
 public class UserInfo implements UserDetails {
 	
-	private String email;
-	private String password;
-	private List<GrantedAuthority> authorities;
+	private final String email;
+	private final String password;
+	private final List<GrantedAuthority> authorities;
 	public UserInfo(User user) {
 		super();
 		this.email = user.getEmail();
 		this.password = user.getPassword();
-		this.authorities = List.of(user.getRole().split(","))
-						    .stream()
+		this.authorities = Stream.of(user.getRole().split(","))
 						    .map(role -> new SimpleGrantedAuthority("ROLE_"+ role))
 						    .collect(Collectors.toList());
 	}

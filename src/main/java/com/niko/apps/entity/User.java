@@ -14,10 +14,14 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 
 @Entity(name = "user")
 @Table(name = "users")
+@Getter
+@Setter
 public class User {
 	
 	@Id
@@ -27,7 +31,10 @@ public class User {
 	
 	@Column(nullable = false, unique = true)	 // Values in DB for this column must be unique and null value is not allowed.
 	private String email;
-	
+
+	@Column(nullable = false) // Values in DB for this column cannot be null
+	private String fullName;
+
 	@Column(nullable = false) // Values in DB for this column cannot be null
 	private String password;
 	
@@ -39,17 +46,6 @@ public class User {
 	@Column(nullable = false, updatable = false)
 	private String role;
 	
-	
-	public String getRole() {
-		return role;
-	}
-
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-
 
 	public User() {
 		super();
@@ -61,6 +57,7 @@ public class User {
 				@Email(message = "Invalid email format") 
 				@NotBlank(message = "Email cannot be empty") 
 				String email,
+				String fullName,
 				String password, 
 				LocalDateTime created_at, 
 				String role
@@ -68,61 +65,11 @@ public class User {
 		super();
 		this.id = id;
 		this.email = email;
+		this.fullName = fullName;
 		this.password = password;
 		this.created_at = created_at;
 		this.role = role;
 	}
-
-
-
-	public Long getId() {
-		return id;
-	}
-
-
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-
-	public String getEmail() {
-		return email;
-	}
-
-
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-
-
-	public String getPassword() {
-		return password;
-	}
-
-
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-
-
-	public LocalDateTime getCreated_at() {
-		return created_at;
-	}
-
-
-
-	public void setCreated_at(LocalDateTime created_at) {
-		this.created_at = created_at;
-	}
-
-
-
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", email=" + email + ", password=" + password + ", created_at=" + created_at

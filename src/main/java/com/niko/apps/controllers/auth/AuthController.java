@@ -55,6 +55,17 @@ public class AuthController {
 			return ResponseEntity.ok(new LoginResponse(token));
 
 	}
+
+	@PostMapping("/api/v1/logout")
+	public ResponseEntity<LoginResponse> logoutUser(Authentication authentication) {
+		// Create a new authentication object using `UsernamePasswordAuthenticationToken`
+		// and validate the username and password
+
+
+		authService.logoutUser(authentication.getName());
+		return ResponseEntity.ok().build();
+
+	}
 	
 	
 	@GetMapping("/user/profile")
