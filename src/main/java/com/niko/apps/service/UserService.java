@@ -3,6 +3,7 @@ package com.niko.apps.service;
 import java.util.Optional;
 
 
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,7 @@ import com.niko.apps.repository.UserRepository;
 import static com.niko.apps.constants.AppConstants.*;
 
 @Component
+@NullMarked
 public class UserService implements UserDetailsService{
 	
 	private final UserRepository repository;
@@ -74,7 +76,8 @@ public class UserService implements UserDetailsService{
     	user.setRole(ROLE_USER);
     	
         // Encrypt password before saving
-        user.setPassword(encoder.encode(req.getPassword())); 
+        user.setPassword(encoder.encode(req.getPassword()));
+        user.setFullName(req.getFullName());
         repository.save(user);
         
     }
@@ -84,5 +87,12 @@ public class UserService implements UserDetailsService{
     public String loginUser(String email) {
         return jwtService.generateToken(email);
     }
-    
+
+
+    public void logoutUser(String email) {
+        // Get user from DB based on email, to get the user_id from the DB
+        User user = repository.findByEmail(email).orElseThrow();
+        repository.delete(user);
+    }
+
 }

@@ -33,9 +33,7 @@ public class Utils {
             startDate = today.minusDays(1);
         }
 
-
         int streak = 0;
-
 
         // For every date in completedDates (sorted in descending order),
         // check if the date matches today minus the current streak count
